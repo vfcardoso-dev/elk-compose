@@ -1,0 +1,71 @@
+version: "3.3"
+
+services:
+    elastic:
+        container_name: "elastic"
+        image: "docker.elastic.co/elasticsearch/elasticsearch:7.2.0"
+        restart: "always"
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        environment:
+            xpack.security.enabled: "true"
+            ELASTIC_USERNAME: "${ELASTIC_USERNAME}"
+            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
+            discovery.type: single-node
+            http.host: "0.0.0.0"
+        networks:
+            - innercircle
+            - elastic
+        volumes:
+            - elk:/usr/share/elasticsearch/data
+
+    logstash:
+        container_name: "logstash"
+        image: "docker.elastic.co/logstash/logstash:7.2.0"
+        restart: "always"
+        environment:
+            XPACK.MONITORING.ELASTICSEARCH.HOSTS: "http://elastic:9200"
+            http.host: "0.0.0.0"
+            xpack.monitoring.enabled: "true"
+            xpack.security.enabled: "true"
+            ELASTIC_USERNAME: "${ELASTIC_USERNAME}"
+            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
+            xpack.monitoring.elasticsearch.username: "${ELASTIC_USERNAME}"
+            xpack.monitoring.elasticsearch.password: "${ELASTIC_PASSWORD}"
+        networks:
+            - innercircle
+
+    kibana:
+        container_name: "kibana"
+        image: "docker.elastic.co/kibana/kibana:7.2.0"
+        restart: "always"
+        ports:
+            - "5601:5601"
+        environment:
+            ELASTICSEARCH_HOSTS: "http://elastic:9200"
+            XPACK_GRAPH_ENABLED: "true"
+            XPACK_WATCHER_ENABLED: "true"
+            XPACK_ML_ENABLED: "true"
+            XPACK_MONITORING_ENABLED: "true"
+            XPACK_SECURITY_ENABLED: "true"
+            xpack.monitoring.ui.container.elasticsearch.enabled: "true"
+            ELASTICSEARCH_USERNAME: "${ELASTIC_USERNAME}"
+            ELASTICSEARCH_PASSWORD: "${ELASTIC_PASSWORD}"
+        networks:
+            - innercircle
+            - kibana
+
+networks:
+    innercircle:
+        external:
+            name: "innercircle"
+    elastic:
+       external:
+            name: "elastic"
+    kibana:
+       external:
+            name: "kibana"
+
+volumes:
+    elk:
