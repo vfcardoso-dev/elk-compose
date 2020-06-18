@@ -1,8 +1,12 @@
 # elk-compose
 A docker-compose file to run containers of ELK stack, with authorization enabled.
 
-Attention: this script file supposes that your docker instance already have networks named 'innercircle', 'elastic' and 'kibana'. You can remove the network entries in the script if you don't need it.
+There are three possible configs:
+- `elk-compose-config-1.yml`: authorization enabled, considering preexistent networks
+- `elk-compose-config-2.yml`: authorization enabled, default networking
+- `elk-compose-config-3.yml`: authorization disabled, default networking
+
 
 ```
-docker-compose -f elk-compose.yml -p elk up -d
+docker-compose -f elk-compose-config-1.yml -p elk up -d
 ```
